@@ -12,9 +12,9 @@ typedef enum {false, true} bool;
 
 /*  Naive matrix multiplication
 *
-*   If <output> is specified, it will be used as the resulting matrix; else 
-*   (NULL) a chunk of memory will be malloc'd and the resulting matrix pointer 
-*   will be returned by the function.
+*   If <output> is specified, it will be used as the resulting matrix, returning
+*   NULL; else (NULL) a chunk of memory will be malloc'd and the resulting 
+*   matrix pointer will be returned by the function.
 *
 *   Matrix sizes:
 *   mat1        = M(m,k)
@@ -24,14 +24,20 @@ typedef enum {false, true} bool;
 
 void *matMultiplication(void *mat1, void *mat2, int m, int n, int k, void *output) {
     void *mat3;
-    if (output == NULL) mat3 = malloc(sizeof(float)*m*n); else mat3 = output;
-
+    mat3 = malloc(sizeof(float)*m*n); 
     float *mem1 = (float*)mat1;
     float *mem2 = (float*)mat2;
     float *mem3 = (float*)mat3;
+
     for (int i = 0; i < m; i++) for (int j = 0; j < n; j++) {
         mem3[i*n+j] = 0;
-        for (int l = 0; l < k; l++) mem3[i*n+j] += mem1[i*k+l]*mem2[l*n+j];  
+        for (int l = 0; l < k; l++) mem3[i*n+j] += mem1[i*k+l]*mem2[l*n+j];
+    };
+    
+    if (output != NULL) {
+        memcpy(output, mat3, sizeof(float)*m*n);
+        free(mat3);
+        return NULL;
     };
     return mat3;
 };
@@ -73,16 +79,22 @@ void *matScalar(void *mat, int m, int n, float scalar, void *output) {
 /*  Matrix transposing
 *
 *   Transposes the matrix. If <output> is specified, it will be used as the 
-*   resulting matrix, else (NULL) a chunk of memory will be malloc'd and the 
-*   resulting matrix pointer will be returned by the function.
+*   resulting matrix, returning NULL; else (NULL) a chunk of memory will be 
+*   malloc'd and the resulting matrix pointer will be returned by the function.
 */
 void *matTranspose(void *mat, int m, int n, void *output) {
     void *mat2;
-    if (output == NULL) mat2 = malloc(sizeof(float)*m*n); else mat2 = output;
-
+    mat2 = malloc(sizeof(float)*m*n);
     float *mem = (float*)mat;
     float *mem2 = (float*)mat2;
+
     for (int i = 0; i < n; i++) for (int j = 0; j < m; j++)
         mem2[i*m+j] = mem[j*n+i];
+
+    if (output != NULL) {
+        memcpy(output, mat2, sizeof(float)*m*n);
+        free(mat2);
+        return NULL;
+    }
     return mat2;
 };
