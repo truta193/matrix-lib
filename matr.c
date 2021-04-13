@@ -143,7 +143,8 @@ void *readMat(const void *mat, int rows, int cols) {
 
 void *matMultiplication(void *mat1, void *mat2, int m, int n, int k, void *output) {
     void *mat3;
-    mat3 = malloc(sizeof(float)*m*n); 
+    if (output == NULL || output == mat1 || output == mat2) mat3 = malloc(sizeof(float)*m*n); else mat3 = output;
+    //mat3 = malloc(sizeof(float)*m*n);
     float *mem1 = (float*)mat1;
     float *mem2 = (float*)mat2;
     float *mem3 = (float*)mat3;
@@ -152,7 +153,14 @@ void *matMultiplication(void *mat1, void *mat2, int m, int n, int k, void *outpu
         mem3[i*n+j] = 0;
         for (int l = 0; l < k; l++) mem3[i*n+j] += mem1[i*k+l]*mem2[l*n+j];
     };
-    
+
+    if (output == NULL) return mat3;
+    if (output == mat1 || output == mat2) {
+        memcpy(output, mat3, sizeof(float)*m*n);
+        free(mat3);
+        return NULL;
+    };
+    return NULL;
 /*DEBUG
 for (int i = 0; i < m; i++) for (int j = 0; j < n; j++) {
     mem3[i*n+j] = 0;
@@ -164,13 +172,6 @@ for (int i = 0; i < m; i++) for (int j = 0; j < n; j++) {
     printf("\n\n");
 };
 */
-    
-    if (output != NULL) {
-        memcpy(output, mat3, sizeof(float)*m*n);
-        free(mat3);
-        return NULL;
-    };
-    return mat3;
 };
 
 void *matAddition(void *mat1, void *mat2, int m, int n, void *output) {
@@ -196,7 +197,7 @@ void *matScalar(void *mat, int m, int n, float scalar, void *output) {
 
 void *matTranspose(void *mat, int m, int n, void *output) {
     void *mat2;
-    mat2 = malloc(sizeof(float)*m*n);
+    if (output == NULL || output == mat) mat2 = malloc(sizeof(float)*m*n); else mat2 = output;
     float *mem = (float*)mat;
     float *mem2 = (float*)mat2;
 
@@ -230,13 +231,14 @@ int main() {
         100,100,100
     };
 
-    float* temp = (float*)matMultiplication(mat1, mat2, 3, 3, 3, NULL);
+    matMultiplication(mat1, mat2, 3, 3, 3, mat1);
 
-    //matScalar(mat3, 2, 3, 2.0f, mat3);
+    matScalar(mat1, 3, 3, 2.0f, mat1);
     for (int i = 0; i < 3; i++){
-         for (int j = 0; j < 3; j++) printf("%.2f ", temp[i*3+j]);
+         for (int j = 0; j < 3; j++) printf("%.2f ", mat1[i][j]);
          printf("\n");
     };
+    //free(temp);
     /*
     matAddition(mat3, matadd, 2, 3, mat3);
     for (int i = 0; i < 2; i++){
