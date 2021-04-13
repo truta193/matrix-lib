@@ -24,7 +24,8 @@ typedef enum {false, true} bool;
 
 void *matMultiplication(void *mat1, void *mat2, int m, int n, int k, void *output) {
     void *mat3;
-    mat3 = malloc(sizeof(float)*m*n); 
+    if (output == NULL || output == mat1 || output == mat2) mat3 = malloc(sizeof(float)*m*n); else mat3 = output;
+    //mat3 = malloc(sizeof(float)*m*n);
     float *mem1 = (float*)mat1;
     float *mem2 = (float*)mat2;
     float *mem3 = (float*)mat3;
@@ -33,13 +34,14 @@ void *matMultiplication(void *mat1, void *mat2, int m, int n, int k, void *outpu
         mem3[i*n+j] = 0;
         for (int l = 0; l < k; l++) mem3[i*n+j] += mem1[i*k+l]*mem2[l*n+j];
     };
-    
-    if (output != NULL) {
+
+    if (output == NULL) return mat3;
+    if (output == mat1 || output == mat2) {
         memcpy(output, mat3, sizeof(float)*m*n);
         free(mat3);
         return NULL;
     };
-    return mat3;
+    return NULL;
 };
 
 /*  Matrix addition.
@@ -84,7 +86,7 @@ void *matScalar(void *mat, int m, int n, float scalar, void *output) {
 */
 void *matTranspose(void *mat, int m, int n, void *output) {
     void *mat2;
-    mat2 = malloc(sizeof(float)*m*n);
+    if (output == NULL || output == mat) mat2 = malloc(sizeof(float)*m*n); else mat2 = output;
     float *mem = (float*)mat;
     float *mem2 = (float*)mat2;
 
